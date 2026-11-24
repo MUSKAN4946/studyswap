@@ -75,9 +75,38 @@ Setup: session S1 (Algebra) has capacity 3. Three bookings were made with aliase
 
 ---
 
+
+
+## Automatic tests (pytest)
+
+- **Expected:** every automatic test passes. The tests cover the four mandatory cases, the cancel and book-again cycle, readable errors, and a direct test that the database itself (not the API) refuses a fourth booking and a booking for an unknown session. They run on a temporary database, so the real data is never touched.
+- **Actual:** command `python -m pytest -v`, last line of the terminal output:
+
+  `18 passed, 1 warning in 2.39s`
+
+- **Proof:** `screenshots/15_pytest_passed.png` (tests in `tests/test_cases.py`) and `screenshots/17_pytest_all_passed.png` (all tests, including `tests/concurrency_test.py`).
+- **Conclusion:** the behaviour shown by hand above is also checked by code, so a future change that breaks a rule will be caught.
+
+---
+
+## Stretch: simultaneous bookings
+
+- **Expected:** 30 people try to book the three places of S1 at the same instant. Exactly 3 bookings are confirmed, 27 are refused with `session_full`, and the database holds 3 confirmed rows, in every round.
+- **Actual:** command `python -m tests.concurrency_test`, five rounds. Every round printed: `3 confirmed, 27 session_full, 0 other | confirmed rows in database: 3`. The final line printed: `RESULT: capacity held in every round.`
+- **Proof:** `screenshots/16_concurrency_test.png`
+- **How it works:** 30 threads, each with its own database connection, wait at a barrier and then start together. Each one runs the same single INSERT that the API uses, so the capacity trigger and the unique index are tested against real simultaneous writers. The `pytest` file `tests/concurrency_test.py` also checks 20 simultaneous requests on the two-place session S2, and the same alias fired 10 times at once (only one may succeed).
+- **Conclusion:** under 30 simultaneous writers on one machine, capacity was never exceeded and no duplicate booking was stored.
+
+---
+
+
+
+
+
+
 ## What this evidence does NOT establish
 
-- **Simultaneous requests:** all tests above sent one request at a time by hand. They show the capacity rule works, but they do not prove it holds when many requests arrive at the same moment. The design argument (trigger inside the database, SQLite allows one writer at a time) supports it, but it has not been measured here. A concurrency test is planned as a separate item.
+- **Simultaneous requests:** the manual cases above were run one request at a time. The stretch test then fired 30 threads at once on one computer, each with its own database connection, and capacity held in every round. This does not cover several server processes or several machines, a database other than SQLite, or a much larger number of simultaneous requests. It also exercises the same database insert that the API uses, not the full HTTP layer under load.
 - **Other machines:** everything was run on one Windows computer. The README has not yet been followed on a different, clean machine.
 - **Large data:** only the three seeded sessions and a handful of bookings were used. Performance with many sessions or bookings was not tested.
 - **Security:** there are no accounts or passwords by design. Anyone can cancel any booking if they know its id. This is outside the scope of the brief.
