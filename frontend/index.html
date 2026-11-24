@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>StudySwap: Peer Study Sessions</title>
+  <meta name="description" content="Book a place in a peer study session. Sessions can never be overbooked." />
+  <link rel="stylesheet" href="/static/css/style.css" />
+</head>
+<body>
+  <header class="hero">
+    <div class="hero-inner">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">S</span>
+        <span class="brand-name">StudySwap</span>
+      </div>
+      <h1>Book a peer study session</h1>
+      <p class="tagline">Pick a session, reserve your place, cancel any time. Every session has a fixed number of places and can never be overbooked.</p>
+      <span id="health" class="pill pill-wait">Checking server...</span>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="summary" aria-label="Summary">
+      <div class="stat"><span id="stat-sessions" class="stat-value">-</span><span class="stat-label">Sessions</span></div>
+      <div class="stat"><span id="stat-places" class="stat-value">-</span><span class="stat-label">Total places</span></div>
+      <div class="stat"><span id="stat-left" class="stat-value">-</span><span class="stat-label">Places left</span></div>
+    </section>
+
+    <section id="sessions" class="grid" aria-live="polite">
+      <p class="loading">Loading sessions...</p>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>StudySwap is a fictional project. Use a made-up alias, never your real name or email.</p>
+  </footer>
+
+  <div id="modal" class="modal" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <h2 id="modal-title">Book a place</h2>
+      <p id="modal-session" class="modal-session"></p>
+      <label for="alias-input">Your alias</label>
+      <input id="alias-input" type="text" maxlength="30" autocomplete="off" placeholder="for example owl42" />
+      <p class="hint">3 to 30 characters: letters, digits, underscore or hyphen.</p>
+      <p id="modal-error" class="modal-error" role="alert" hidden></p>
+      <div class="modal-actions">
+        <button id="modal-cancel" class="btn btn-ghost" type="button">Close</button>
+        <button id="modal-confirm" class="btn btn-primary" type="button">Confirm booking</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toasts" class="toasts" aria-live="polite"></div>
+
+  <script src="/static/js/api.js"></script>
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
