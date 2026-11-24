@@ -3,11 +3,13 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from app.db import get_conn, init_db
+from app.errors import register_error_handlers
+from app.routes import bookings, sessions
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # App start hote hi tables / trigger / index ban jayenge
+    # On startup: make sure tables, index and trigger exist.
     init_db()
     yield
 
@@ -15,14 +17,19 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="StudySwap",
     description="Study session booking API that can never overbook.",
-    version="0.1.0",
+    version="1.0.0",
     lifespan=lifespan,
 )
 
+# Every error gets the same shape: {"error": "...", "message": "..."}
+register_error_handlers(app)
 
-@app.get("/health")
+app.include_router(sessions.router)
+app.include_router(bookings.router)
+
+
+@app.get("/health", tags=["Health"], summary="Check that the app and database work")
 def health():
-    """Check karta hai ki app aur database dono chal rahe hain."""
     conn = get_conn()
     try:
         conn.execute("SELECT 1").fetchone()
