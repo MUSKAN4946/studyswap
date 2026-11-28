@@ -101,13 +101,30 @@ Setup: session S1 (Algebra) has capacity 3. Three bookings were made with aliase
 
 
 
+## Fresh clone: the README works from an empty folder
+
+- **Expected:** following the README from an empty folder, with nothing copied from my working copy, gives a running app with the three seeded sessions and no bookings.
+- **What I did:** created a new folder `fresh_test` outside the project, ran `git clone https://github.com/MUSKAN4946/studyswap.git`, created a new virtual environment, activated it, ran `pip install -r requirements.txt`, ran `python seed.py`, started the server with `uvicorn app.main:app --reload`, and opened http://127.0.0.1:8000.
+- **Actual:**
+  - The clone finished without errors (79 objects received).
+  - `pip install -r requirements.txt` completed; the only message shown at the end was pip's optional notice that a newer pip version exists.
+  - `python seed.py` printed the three sessions: S1 Algebra (capacity 3), S2 Resume review (capacity 2), S3 Python (capacity 4).
+  - The website opened and showed a fresh state: Server online, Places left 9, "No bookings yet" on every card, and none of the aliases from my earlier tests. This confirms that the old `studyswap.db` is not part of the repository and that no data was carried over.
+- **Proof:** `screenshots/18_fresh_clone_running.png`
+- **One slip during the test:** my first `uvicorn` command failed with "not recognized" because I ran it in a different terminal where the virtual environment was not active. After activating the virtual environment in the fresh folder it worked. README step 2 already tells the reader to activate the virtual environment.
+- **Conclusion:** the setup steps in the README, in the order written, produce a working app with seeded sessions from a fresh clone.
+
+---
+
+
+
 
 
 
 ## What this evidence does NOT establish
 
 - **Simultaneous requests:** the manual cases above were run one request at a time. The stretch test then fired 30 threads at once on one computer, each with its own database connection, and capacity held in every round. This does not cover several server processes or several machines, a database other than SQLite, or a much larger number of simultaneous requests. It also exercises the same database insert that the API uses, not the full HTTP layer under load.
-- **Other machines:** everything was run on one Windows computer. The README has not yet been followed on a different, clean machine.
+- **Other machines:** everything was run on one Windows computer with Python 3.14.10. The README was followed from a fresh clone in an empty folder on that same computer, with a new virtual environment, and it worked. It has not been followed on a different computer or operating system, and other Python versions were not tested.
 - **Large data:** only the three seeded sessions and a handful of bookings were used. Performance with many sessions or bookings was not tested.
 - **Security:** there are no accounts or passwords by design. Anyone can cancel any booking if they know its id. This is outside the scope of the brief.
 - **Other browsers and devices:** only manual testing in one browser was done.
